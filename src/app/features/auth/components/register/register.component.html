@@ -50,10 +50,10 @@
   </div>
 
   <!-- Submit -->
-  <button type="submit" [disabled]="registerForm.invalid || loading">
-    {{ loading ? 'Inscription en cours...' : "S'inscrire" }}
+  <button type="submit" [disabled]="registerForm.invalid || loading()">
+    {{ loading() ? 'Inscription en cours...' : "S'inscrire" }}
   </button>
 
   <!-- Error -->
-  <div *ngIf="error" class="text-red-600">{{ error }}</div>
+  <div *ngIf="error()" class="text-red-600">{{ error() }}</div>
 </form>

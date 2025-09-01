@@ -38,11 +38,16 @@ export class LoginComponent {
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
-  getFieldError(field: string): string {
-    const control = this.loginForm.get(field);
-    if (control?.errors?.['required']) return 'Ce champ est requis';
-    if (control?.errors?.['email']) return 'Email invalide';
-    if (control?.errors?.['minlength']) return 'Mot de passe trop court (6 caractères minimum)';
+  getFieldError(fieldName: string): string {
+    const field = this.loginForm.get(fieldName);
+
+    if (field?.errors) {
+      if (field.errors['required']) return 'Ce champ est requis';
+      if (field.errors['email']) return "Format d'email invalide";
+      if (field.errors['minlength'])
+        return `Minimum ${field.errors['minlength'].requiredLength} caractères`;
+    }
+
     return '';
   }
 

@@ -6,20 +6,21 @@ import { adminGuard } from './core/guards/admin.guard';
 export const routes: Routes = [
   { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
 
+  // Lazy loading via routes exportées
   {
     path: 'auth',
-    loadChildren: () => import('./features/auth/auth.module').then((m) => m.AuthModule),
+    loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
 
   {
     path: 'todos',
-    canActivate: [authGuard], // 🔹 Protection par AuthGuard
+    canActivate: [authGuard],
     loadChildren: () => import('./features/todos/todos.module').then((m) => m.TodosModule),
   },
 
   {
     path: 'admin',
-    canActivate: [authGuard, adminGuard], // 🔹 Protection par AuthGuard + AdminGuard
+    canActivate: [authGuard, adminGuard],
     loadChildren: () => import('./features/admin/admin.module').then((m) => m.AdminModule),
   },
 ];

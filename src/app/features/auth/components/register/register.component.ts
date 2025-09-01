@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-register',
@@ -13,8 +14,8 @@ import { AuthService } from '../../services/auth.service';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
-  loading = false; // 🔹 propriété publique
-  error: string | null = null; // 🔹 propriété publique
+  loading = signal(false);
+  error = signal<string>('');
 
   constructor(
     private fb: FormBuilder,
@@ -57,19 +58,20 @@ export class RegisterComponent {
   onSubmit() {
     if (this.registerForm.invalid) return;
 
-    const { name, email, password, confirmPassword } = this.registerForm.value;
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set('');
 
-    this.authService.register({ name, email, password, confirmPassword }).subscribe({
+    // Exclure confirmPassword avant l'envoi
+    const { confirmPassword, ...userData } = this.registerForm.value;
+
+    this.authService.register(userData).subscribe({
       next: (user) => {
-        this.loading = false;
-        alert('Inscription réussie !');
+        this.loading.set(false);
         this.router.navigate(['/auth/login']);
       },
       error: (err) => {
-        this.loading = false;
-        this.error = err.message || 'Échec de l’inscription';
+        this.loading.set(false);
+        this.error.set(err.message || 'Échec de l’inscription');
       },
     });
   }
