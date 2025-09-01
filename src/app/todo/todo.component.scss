@@ -28,21 +28,6 @@
     }
   }
 
-  button {
-    padding: 8px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: #0056b3;
-    }
-  }
-
   ul {
     list-style-type: none;
     padding: 0;
@@ -63,11 +48,52 @@
         background-color: #e9ecef;
       }
 
-      button {
-        background-color: #dc3545;
+      /* Style du texte normal */
+      span {
+        flex-grow: 1;
+        cursor: pointer;
+      }
 
-        &:hover {
-          background-color: #a71d2a;
+      /* Style pour l'input en édition */
+      input {
+        flex-grow: 1;
+        padding: 6px 10px;
+        border: 1px solid #007bff;
+        border-radius: 6px;
+        font-size: 16px;
+        outline: none;
+        margin-right: 8px;
+
+        &:focus {
+          box-shadow: 0 0 5px rgba(0,123,255,0.5);
+        }
+      }
+
+      /* Boutons */
+      button {
+        margin-left: 4px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:first-of-type { 
+          background-color: #dc3545;
+          color: white;
+
+          &:hover {
+            background-color: #a71d2a;
+          }
+        }
+
+        &:last-of-type { 
+          background-color: #ffc107;
+          color: #343a40;
+
+          &:hover {
+            background-color: #e0a800;
+          }
         }
       }
     }

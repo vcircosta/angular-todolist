@@ -10,17 +10,30 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./todo.component.scss']
 })
 export class TodoComponent {
-  tasks: string[] = [];
-  newTask: string = '';
+  tasks: { text: string; editing: boolean }[] = [];
+  newTask = '';
 
   addTask() {
-    if (this.newTask.trim()) {
-      this.tasks.push(this.newTask.trim());
+    const trimmed = this.newTask.trim();
+    if (trimmed) {
+      this.tasks.push({ text: trimmed, editing: false });
       this.newTask = '';
     }
   }
 
-  removeTask(index: number) {
-    this.tasks.splice(index, 1);
+  removeTask(i: number) {
+    this.tasks.splice(i, 1);
+  }
+
+  editTask(task: { text: string; editing: boolean }) {
+    task.editing = true;
+  }
+
+  saveTask(task: { text: string; editing: boolean }, event: any) {
+    const trimmed = event.target.value.trim();
+    if (trimmed) {
+      task.text = trimmed;
+    }
+    task.editing = false;
   }
 }
