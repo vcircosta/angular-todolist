@@ -6,6 +6,6 @@ import { TodoComponent } from './todo/todo.component';
   standalone: true,
   imports: [TodoComponent],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {}

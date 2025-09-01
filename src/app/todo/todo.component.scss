@@ -4,7 +4,7 @@
   padding: 20px;
   background-color: #f8f9fa;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-family: 'Arial', sans-serif;
 
   h2 {
@@ -24,7 +24,7 @@
 
     &:focus {
       border-color: #007bff;
-      box-shadow: 0 0 3px rgba(0,123,255,0.5);
+      box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
     }
   }
 
@@ -41,7 +41,7 @@
       margin-bottom: 10px;
       padding: 10px 12px;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       transition: background-color 0.2s;
 
       &:hover {
@@ -65,7 +65,7 @@
         margin-right: 8px;
 
         &:focus {
-          box-shadow: 0 0 5px rgba(0,123,255,0.5);
+          box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
       }
 
@@ -78,7 +78,7 @@
         cursor: pointer;
         transition: background-color 0.2s;
 
-        &:first-of-type { 
+        &:first-of-type {
           background-color: #dc3545;
           color: white;
 
@@ -87,7 +87,7 @@
           }
         }
 
-        &:last-of-type { 
+        &:last-of-type {
           background-color: #ffc107;
           color: #343a40;
 
