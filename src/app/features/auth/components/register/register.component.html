@@ -1,0 +1,59 @@
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-6">
+  <!-- Nom -->
+  <div>
+    <label for="name">Nom</label>
+    <input
+      id="name"
+      formControlName="name"
+      type="text"
+      [class.border-red-500]="isFieldInvalid('name')"
+    />
+    <p *ngIf="isFieldInvalid('name')" class="text-red-600">{{ getFieldError('name') }}</p>
+  </div>
+
+  <!-- Email -->
+  <div>
+    <label for="email">Email</label>
+    <input
+      id="email"
+      formControlName="email"
+      type="email"
+      [class.border-red-500]="isFieldInvalid('email')"
+    />
+    <p *ngIf="isFieldInvalid('email')" class="text-red-600">{{ getFieldError('email') }}</p>
+  </div>
+
+  <!-- Mot de passe -->
+  <div>
+    <label for="password">Mot de passe</label>
+    <input
+      id="password"
+      formControlName="password"
+      type="password"
+      [class.border-red-500]="isFieldInvalid('password')"
+    />
+    <p *ngIf="isFieldInvalid('password')" class="text-red-600">{{ getFieldError('password') }}</p>
+  </div>
+
+  <!-- Confirmer mot de passe -->
+  <div>
+    <label for="confirmPassword">Confirmer mot de passe</label>
+    <input
+      id="confirmPassword"
+      formControlName="confirmPassword"
+      type="password"
+      [class.border-red-500]="isFieldInvalid('confirmPassword')"
+    />
+    <p *ngIf="isFieldInvalid('confirmPassword')" class="text-red-600">
+      {{ getFieldError('confirmPassword') }}
+    </p>
+  </div>
+
+  <!-- Submit -->
+  <button type="submit" [disabled]="registerForm.invalid || loading">
+    {{ loading ? 'Inscription en cours...' : "S'inscrire" }}
+  </button>
+
+  <!-- Error -->
+  <div *ngIf="error" class="text-red-600">{{ error }}</div>
+</form>
