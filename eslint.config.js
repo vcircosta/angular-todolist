@@ -30,6 +30,17 @@ module.exports = tseslint.config(
           style: "kebab-case",
         },
       ],
+      // Règles strictes pour un code propre
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-empty-function": "error",
+      "@typescript-eslint/no-unused-vars": "error",
+      "no-console": ["warn", { "allow": ["warn", "error"] }],
+      "quotes": ["error", "single"],
+      "semi": ["error", "always"],
+      "no-trailing-spaces": "error",
+      "prefer-const": "error",
+      "no-var": "error",
+      "eqeqeq": ["error", "always"],
     },
   },
   {
