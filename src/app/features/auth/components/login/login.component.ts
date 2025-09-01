@@ -16,20 +16,18 @@ export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
   error: string | null = null;
-  private returnUrl: string = '/todos'; // valeur par défaut
-
+  private returnUrl: string = '/todos';
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute, // 🔹 pour récupérer returnUrl
+    private route: ActivatedRoute,
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
 
-    // 🔹 Récupérer le returnUrl depuis les query params
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/todos';
   }
 
@@ -67,7 +65,6 @@ export class LoginComponent {
         this.loading = false;
         this.authService.setCurrentUser(user);
 
-        // 🔹 Redirection après login vers returnUrl
         this.router.navigate([this.returnUrl]);
       },
       error: (err) => {

@@ -84,10 +84,6 @@ export class AuthService {
     localStorage.removeItem('currentUser');
   }
 
-  getCurrentUser(): User | null {
-    return this.currentUser();
-  }
-
   setCurrentUser(user: User): void {
     this.currentUser.set(user);
     localStorage.setItem('currentUser', JSON.stringify(user));
@@ -97,5 +93,35 @@ export class AuthService {
   private syncLocalStorage(): void {
     localStorage.setItem('users', JSON.stringify(this.users));
     localStorage.setItem('passwords', JSON.stringify(this.passwords));
+  }
+
+  // 🔹 Récupérer l'utilisateur connecté (synchrone ou async)
+  async getCurrentUser(): Promise<User | null> {
+    // Simuler un petit délai
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return this.currentUser();
+  }
+
+  // 🔹 Récupérer tous les utilisateurs
+  async getAllUsers(): Promise<User[]> {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return [...this.users]; // retourner une copie
+  }
+
+  // 🔹 Supprimer un utilisateur par ID
+  async deleteUser(userId: number): Promise<boolean> {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const index = this.users.findIndex((u) => u.id === userId);
+    if (index === -1) return false;
+
+    // Empêcher de supprimer un admin
+    if (this.users[index].role === 'admin') return false;
+
+    const userEmail = this.users[index].email; // 🔹 stocker avant splice
+    this.users.splice(index, 1);
+    delete this.passwords[userEmail];
+
+    this.syncLocalStorage();
+    return true;
   }
 }

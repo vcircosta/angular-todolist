@@ -1,4 +1,5 @@
+// src/app/features/admin/admin.routes.ts
 import { Routes } from '@angular/router';
-import { AdminDashboardComponent } from './components/admin-dashboard.component';
+import { AdminComponent } from './admin.component';
 
-export const adminRoutes: Routes = [{ path: '', component: AdminDashboardComponent }];
+export const ADMIN_ROUTES: Routes = [{ path: '', component: AdminComponent }];
