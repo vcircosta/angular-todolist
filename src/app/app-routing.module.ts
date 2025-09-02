@@ -16,10 +16,10 @@ export const routes: Routes = [
   {
     path: 'todos',
     canActivate: [authGuard],
-    loadChildren: () => import('./features/todos/todos.module').then((m) => m.TodosModule),
+    loadChildren: () => import('./features/todos/todos.routes').then((m) => m.TodosRoutes),
   },
 
-  // Admin (protégé par Auth + Admin)
+  // Admin
   {
     path: 'admin',
     canActivate: [authGuard, AdminGuard],
