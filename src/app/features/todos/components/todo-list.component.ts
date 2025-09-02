@@ -5,6 +5,7 @@ import { Todo } from '../models/todo.model';
 import { TodoService } from '../services/todo.service';
 import { PriorityPipe } from '../../../shared/pipes/priority.pipe';
 import { HighlightDirective } from '../../../shared/directives/highlight.directive';
+import { ErrorService } from '../../../shared/services/error.service';
 
 @Component({
   selector: 'app-todo-list',
@@ -26,7 +27,10 @@ export class TodoListComponent implements OnInit {
     priority: 'medium' as const,
   };
 
-  constructor(private todoService: TodoService) {}
+  constructor(
+    private todoService: TodoService,
+    private errorService: ErrorService,
+  ) {}
 
   async ngOnInit() {
     await this.loadTodos();
@@ -37,8 +41,8 @@ export class TodoListComponent implements OnInit {
       this.loading.set(true);
       const todos = await this.todoService.getAllTodos();
       this.todos.set(todos);
-    } catch (error) {
-      console.error('Erreur lors du chargement des todos:', error);
+    } catch (err) {
+      this.errorService.showError('Impossible de charger les todos.');
     } finally {
       this.loading.set(false);
     }
