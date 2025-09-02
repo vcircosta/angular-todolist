@@ -3,7 +3,7 @@ export interface User {
   name: string;
   email: string;
   role: 'user' | 'admin';
-  confirmPassword?: string; // optionnel
+  confirmPassword?: string;
 }
 
 export interface LoginRequest {

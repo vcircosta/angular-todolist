@@ -10,7 +10,7 @@ export class AdminGuard implements CanActivate {
   ) {}
 
   async canActivate(): Promise<boolean> {
-    const user = await this.authService.getCurrentUser(); // 🔹 await
+    const user = await this.authService.getCurrentUser();
     if (user?.role === 'admin') return true;
 
     this.router.navigate(['/todos']);
