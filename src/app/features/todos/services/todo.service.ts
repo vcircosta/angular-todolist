@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 import { Todo, CreateTodoRequest } from '../models/todo.model';
 
 @Injectable({
@@ -38,33 +38,56 @@ export class TodoService {
     },
   ]);
 
-  // Simuler un délai réseau
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  // --- Signals computed pour filtrer automatiquement ---
+  public todosByStatus = computed(() => ({
+    todo: this.todos().filter((t) => t.status === 'todo'),
+    'in-progress': this.todos().filter((t) => t.status === 'in-progress'),
+    done: this.todos().filter((t) => t.status === 'done'),
+  }));
+
+  public todosByPriority = computed(() => ({
+    high: this.todos().filter((t) => t.priority === 'high'),
+    medium: this.todos().filter((t) => t.priority === 'medium'),
+    low: this.todos().filter((t) => t.priority === 'low'),
+  }));
+
+  public todoStats = computed(() => {
+    const allTodos = this.todos();
+    const completed = allTodos.filter((t) => t.status === 'done').length;
+    return {
+      total: allTodos.length,
+      completed,
+      pending: allTodos.filter((t) => t.status === 'todo').length,
+      inProgress: allTodos.filter((t) => t.status === 'in-progress').length,
+      highPriority: allTodos.filter((t) => t.priority === 'high').length,
+      completionRate: allTodos.length > 0 ? (completed / allTodos.length) * 100 : 0,
+    };
+  });
+
+  constructor() {
+    // --- Effet automatique pour sauvegarder les todos dans localStorage
+    effect(() => {
+      localStorage.setItem('todos', JSON.stringify(this.todos()));
+      console.log(`🔄 Todos sauvegardés (${this.todos().length} items)`);
+    });
+
+    // Charger les todos depuis localStorage si existants
+    const savedTodos = localStorage.getItem('todos');
+    if (savedTodos) {
+      this.todos.set(JSON.parse(savedTodos));
+    }
   }
 
-  // GET - Récupérer tous les todos
+  // --- Méthodes CRUD ---
   async getAllTodos(): Promise<Todo[]> {
-    console.log('🔄 Service: Récupération de tous les todos...');
-    await this.delay(300); // Simuler un appel API
-    console.log('✅ Service: Todos récupérés avec succès');
     return this.todos();
   }
 
-  // GET - Récupérer un todo par ID
   async getTodoById(id: number): Promise<Todo | undefined> {
-    console.log(`🔄 Service: Récupération du todo ${id}...`);
-    await this.delay(200);
-    const todo = this.todos().find((t) => t.id === id);
-    console.log(`✅ Service: Todo ${id} récupéré:`, todo);
-    return todo;
+    return this.todos().find((t) => t.id === id);
   }
 
-  // POST - Créer un nouveau todo
   async createTodo(todoData: CreateTodoRequest): Promise<Todo> {
-    console.log("🔄 Service: Création d'un nouveau todo...", todoData);
-    await this.delay(400);
-
     const newTodo: Todo = {
       id: Date.now(),
       title: todoData.title,
@@ -72,63 +95,35 @@ export class TodoService {
       status: 'todo',
       priority: todoData.priority,
       assignedTo: todoData.assignedTo,
-      createdBy: 1, // TODO: Récupérer l'ID de l'utilisateur connecté
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-
-    this.todos.update((todos) => [...todos, newTodo]);
-    console.log('✅ Service: Todo créé avec succès:', newTodo);
+    this.todos.update((current) => [...current, newTodo]);
     return newTodo;
   }
 
-  // PUT - Mettre à jour un todo
   async updateTodo(id: number, updates: Partial<Todo>): Promise<Todo | undefined> {
-    console.log(`🔄 Service: Mise à jour du todo ${id}...`, updates);
-    await this.delay(300);
-
     let updatedTodo: Todo | undefined;
-    this.todos.update((todos) =>
-      todos.map((todo) => {
-        if (todo.id === id) {
-          updatedTodo = {
-            ...todo,
-            ...updates,
-            updatedAt: new Date(),
-          };
+    this.todos.update((current) =>
+      current.map((t) => {
+        if (t.id === id) {
+          updatedTodo = { ...t, ...updates, updatedAt: new Date() };
           return updatedTodo;
         }
-        return todo;
+        return t;
       }),
     );
-
-    console.log(`✅ Service: Todo ${id} mis à jour:`, updatedTodo);
     return updatedTodo;
   }
 
-  // DELETE - Supprimer un todo
   async deleteTodo(id: number): Promise<boolean> {
-    console.log(`🔄 Service: Suppression du todo ${id}...`);
-    await this.delay(250);
-
     let deleted = false;
-    this.todos.update((todos) => {
-      const initialLength = todos.length;
-      const filtered = todos.filter((todo) => todo.id !== id);
-      deleted = filtered.length < initialLength;
+    this.todos.update((current) => {
+      const filtered = current.filter((t) => t.id !== id);
+      deleted = filtered.length < current.length;
       return filtered;
     });
-
-    console.log(`✅ Service: Todo ${id} supprimé:`, deleted);
     return deleted;
-  }
-
-  // Méthodes utilitaires
-  getTodosByStatus(status: Todo['status']): Todo[] {
-    return this.todos().filter((todo) => todo.status === status);
-  }
-
-  getTodosByPriority(priority: Todo['priority']): Todo[] {
-    return this.todos().filter((todo) => todo.priority === priority);
   }
 }
