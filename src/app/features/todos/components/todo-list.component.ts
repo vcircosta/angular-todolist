@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Todo } from '../models/todo.model';
 import { TodoService } from '../services/todo.service';
 import { PriorityPipe } from '../../../shared/pipes/priority.pipe';
+import { HighlightDirective } from '../../../shared/directives/highlight.directive';
 
 @Component({
   selector: 'app-todo-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, PriorityPipe],
+  imports: [CommonModule, FormsModule, PriorityPipe, HighlightDirective],
   templateUrl: './todo-list.component.html',
   styles: [],
 })
@@ -17,7 +18,6 @@ export class TodoListComponent implements OnInit {
   loading = signal(true);
   addingTodo = signal(false);
 
-  // Liste des statuts pour itérer dans le template
   statuses: Todo['status'][] = ['todo', 'in-progress', 'done'];
 
   newTodo = {
@@ -45,18 +45,18 @@ export class TodoListComponent implements OnInit {
   }
 
   async addTodo() {
-    if (this.newTodo.title.trim()) {
-      try {
-        this.addingTodo.set(true);
-        await this.todoService.createTodo({ ...this.newTodo });
-        await this.loadTodos();
-        this.newTodo.title = '';
-        this.newTodo.description = '';
-      } catch (error) {
-        console.error("Erreur lors de l'ajout du todo:", error);
-      } finally {
-        this.addingTodo.set(false);
-      }
+    if (!this.newTodo.title.trim()) return;
+
+    this.addingTodo.set(true);
+    try {
+      await this.todoService.createTodo({ ...this.newTodo });
+      await this.loadTodos();
+      this.newTodo.title = '';
+      this.newTodo.description = '';
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du todo:", error);
+    } finally {
+      this.addingTodo.set(false);
     }
   }
 
@@ -65,7 +65,7 @@ export class TodoListComponent implements OnInit {
       await this.todoService.updateTodo(id, { status });
       await this.loadTodos();
     } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
+      console.error('Erreur lors de la mise à jour du statut:', error);
     }
   }
 
@@ -74,7 +74,7 @@ export class TodoListComponent implements OnInit {
       await this.todoService.deleteTodo(id);
       await this.loadTodos();
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+      console.error('Erreur lors de la suppression du todo:', error);
     }
   }
 
@@ -82,7 +82,6 @@ export class TodoListComponent implements OnInit {
     return this.todos().filter((todo) => todo.status === status);
   }
 
-  // trackBy pour optimiser le rendu des listes
   trackById(index: number, todo: Todo): number {
     return todo.id;
   }
