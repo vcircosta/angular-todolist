@@ -1,0 +1,122 @@
+<div class="max-w-4xl mx-auto">
+  <h2 class="text-3xl font-bold mb-6">Mes Todos</h2>
+
+  <!-- Loading state -->
+  <div *ngIf="loading()">
+    <div class="text-center py-8">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <p class="mt-2 text-gray-600">Chargement des todos...</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loading()">
+    <!-- Formulaire d'ajout -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+      <h3 class="text-xl font-semibold mb-4">Ajouter une tâche</h3>
+      <form (ngSubmit)="addTodo()" #todoForm="ngForm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <input
+            type="text"
+            [(ngModel)]="newTodo.title"
+            name="title"
+            placeholder="Titre de la tâche"
+            class="border p-2 rounded"
+            required
+          />
+          <input
+            type="text"
+            [(ngModel)]="newTodo.description"
+            name="description"
+            placeholder="Description (optionnel)"
+            class="border p-2 rounded"
+          />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <select [(ngModel)]="newTodo.priority" name="priority" class="border p-2 rounded">
+            <option value="low">Basse priorité</option>
+            <option value="medium">Priorité moyenne</option>
+            <option value="high">Haute priorité</option>
+          </select>
+          <button
+            type="submit"
+            [disabled]="!todoForm.form.valid || addingTodo()"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            <span
+              *ngIf="addingTodo()"
+              class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
+            ></span>
+            {{ addingTodo() ? 'Ajout en cours...' : 'Ajouter' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Liste des todos -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Colonnes Todo, In-progress, Done -->
+      <div *ngFor="let status of statuses">
+        <h3
+          class="text-lg font-semibold mb-4"
+          [ngClass]="{
+            'text-gray-700': status === 'todo',
+            'text-blue-700': status === 'in-progress',
+            'text-green-700': status === 'done',
+          }"
+        >
+          {{ status | titlecase }} ({{ getTodosByStatus(status).length }})
+        </h3>
+        <div *ngFor="let todo of getTodosByStatus(status); trackBy: trackById">
+          <div
+            class="bg-white p-4 rounded shadow mb-3"
+            [ngClass]="{ 'opacity-75': status === 'done' }"
+          >
+            <h4 class="font-semibold" [ngClass]="{ 'line-through': status === 'done' }">
+              {{ todo.title }}
+            </h4>
+            <p
+              *ngIf="todo.description"
+              class="text-gray-600 text-sm mt-1"
+              [ngClass]="{ 'line-through': status === 'done' }"
+            >
+              {{ todo.description }}
+            </p>
+            <div class="flex justify-between items-center mt-2">
+              <span
+                class="text-xs px-2 py-1 rounded-full"
+                [ngClass]="{
+                  'bg-red-100 text-red-800': todo.priority === 'high',
+                  'bg-yellow-100 text-yellow-800': todo.priority === 'medium',
+                  'bg-green-100 text-green-800': todo.priority === 'low',
+                }"
+              >
+                {{ todo.priority | priority }}
+              </span>
+              <button
+                *ngIf="status === 'todo'"
+                (click)="updateStatus(todo.id, 'in-progress')"
+                class="text-blue-600 hover:text-blue-800"
+              >
+                Commencer
+              </button>
+              <button
+                *ngIf="status === 'in-progress'"
+                (click)="updateStatus(todo.id, 'done')"
+                class="text-green-600 hover:text-green-800"
+              >
+                Terminer
+              </button>
+              <button
+                *ngIf="status === 'done'"
+                (click)="deleteTodo(todo.id)"
+                class="text-red-600 hover:text-red-800"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
