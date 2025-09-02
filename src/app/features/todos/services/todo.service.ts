@@ -51,15 +51,24 @@ export class TodoService {
     low: this.todos().filter((t) => t.priority === 'low'),
   }));
 
+  // --- Nouveaux computed pour le template ---
+  public pendingTodos = computed(() => this.todosByStatus().todo);
+  public inProgressTodos = computed(() => this.todosByStatus()['in-progress']);
+  public completedTodos = computed(() => this.todosByStatus().done);
+
+  // --- Statistiques globales ---
   public todoStats = computed(() => {
     const allTodos = this.todos();
-    const completed = allTodos.filter((t) => t.status === 'done').length;
+    const completed = this.completedTodos().length;
+    const pending = this.pendingTodos().length;
+    const inProgress = this.inProgressTodos().length;
+
     return {
       total: allTodos.length,
       completed,
-      pending: allTodos.filter((t) => t.status === 'todo').length,
-      inProgress: allTodos.filter((t) => t.status === 'in-progress').length,
-      highPriority: allTodos.filter((t) => t.priority === 'high').length,
+      pending,
+      inProgress,
+      highPriority: this.todosByPriority().high.length,
       completionRate: allTodos.length > 0 ? (completed / allTodos.length) * 100 : 0,
     };
   });

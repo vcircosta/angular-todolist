@@ -1,7 +1,6 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Todo } from '../models/todo.model';
 import { TodoService } from '../services/todo.service';
 import { PriorityPipe } from '../../../shared/pipes/priority.pipe';
 import { HighlightDirective } from '../../../shared/directives/highlight.directive';
@@ -14,12 +13,9 @@ import { ErrorService } from '../../../shared/services/error.service';
   templateUrl: './todo-list.component.html',
   styles: [],
 })
-export class TodoListComponent implements OnInit {
-  todos = signal<Todo[]>([]);
-  loading = signal(true);
-  addingTodo = signal(false);
-
-  statuses: Todo['status'][] = ['todo', 'in-progress', 'done'];
+export class TodoListComponent {
+  todoService = inject(TodoService);
+  errorService = inject(ErrorService);
 
   newTodo = {
     title: '',
@@ -27,49 +23,46 @@ export class TodoListComponent implements OnInit {
     priority: 'medium' as const,
   };
 
-  constructor(
-    private todoService: TodoService,
-    private errorService: ErrorService,
-  ) {}
+  addingTodo = false;
+  loading = true;
 
-  async ngOnInit() {
-    await this.loadTodos();
+  statuses = ['todo', 'in-progress', 'done'] as const;
+
+  constructor() {
+    this.loadTodos();
   }
 
   async loadTodos() {
     try {
-      this.loading.set(true);
-      const todos = await this.todoService.getAllTodos();
-      this.todos.set(todos);
+      this.loading = true;
+      await this.todoService.getAllTodos();
     } catch (err) {
       this.errorService.showError('Impossible de charger les todos.');
     } finally {
-      this.loading.set(false);
+      this.loading = false;
     }
   }
 
   async addTodo() {
     if (!this.newTodo.title.trim()) return;
 
-    this.addingTodo.set(true);
+    this.addingTodo = true;
     try {
       await this.todoService.createTodo({ ...this.newTodo });
-      await this.loadTodos();
-      this.newTodo.title = '';
-      this.newTodo.description = '';
-    } catch (error) {
-      console.error("Erreur lors de l'ajout du todo:", error);
+      this.newTodo = { title: '', description: '', priority: 'medium' };
+    } catch (err) {
+      this.errorService.showError('Impossible d’ajouter le todo.');
     } finally {
-      this.addingTodo.set(false);
+      this.addingTodo = false;
     }
   }
 
-  async updateStatus(id: number, status: Todo['status']) {
+  async updateStatus(id: number, status: 'todo' | 'in-progress' | 'done') {
     try {
       await this.todoService.updateTodo(id, { status });
       await this.loadTodos();
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du statut:', error);
+    } catch (err) {
+      this.errorService.showError('Impossible de mettre à jour le statut.');
     }
   }
 
@@ -77,16 +70,8 @@ export class TodoListComponent implements OnInit {
     try {
       await this.todoService.deleteTodo(id);
       await this.loadTodos();
-    } catch (error) {
-      console.error('Erreur lors de la suppression du todo:', error);
+    } catch (err) {
+      this.errorService.showError('Impossible de supprimer le todo.');
     }
-  }
-
-  getTodosByStatus(status: Todo['status']): Todo[] {
-    return this.todos().filter((todo) => todo.status === status);
-  }
-
-  trackById(index: number, todo: Todo): number {
-    return todo.id;
   }
 }
