@@ -6,7 +6,6 @@ import { User, LoginRequest, RegisterRequest } from '../models/user.model';
   providedIn: 'root',
 })
 export class AuthService {
-  // 🔹 Signal public pour le template
   public currentUser = signal<User | null>(null);
   public currentUser$ = this.currentUser.asReadonly();
 
@@ -14,7 +13,6 @@ export class AuthService {
   private passwords: { [key: string]: string } = {};
 
   constructor() {
-    // 🔹 Charger les utilisateurs depuis localStorage ou initialiser avec les mocks
     const savedUsers = localStorage.getItem('users');
     const savedPasswords = localStorage.getItem('passwords');
 
@@ -22,7 +20,6 @@ export class AuthService {
       this.users = JSON.parse(savedUsers);
       this.passwords = JSON.parse(savedPasswords);
     } else {
-      // utilisateurs de test initiaux
       this.users = [
         { id: 1, name: 'Admin User', email: 'admin@example.com', role: 'admin' },
         { id: 2, name: 'Normal User', email: 'user@example.com', role: 'user' },
@@ -34,7 +31,6 @@ export class AuthService {
       this.syncLocalStorage();
     }
 
-    // 🔹 Charger l'utilisateur connecté
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       this.currentUser.set(JSON.parse(savedUser));
@@ -51,6 +47,10 @@ export class AuthService {
 
     if (user && password === credentials.password) {
       this.setCurrentUser(user);
+
+      const token = btoa(`${user.email}:${new Date().getTime()}`);
+      localStorage.setItem('token', token);
+
       return of(user).pipe(delay(500));
     } else {
       return throwError(() => new Error('Email ou mot de passe incorrect'));
@@ -82,6 +82,11 @@ export class AuthService {
   logout(): void {
     this.currentUser.set(null);
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+  }
+
+  isAuthenticated(): boolean {
+    return this.getToken() !== null;
   }
 
   setCurrentUser(user: User): void {
@@ -89,39 +94,37 @@ export class AuthService {
     localStorage.setItem('currentUser', JSON.stringify(user));
   }
 
-  // 🔹 Synchronise users et passwords avec localStorage
   private syncLocalStorage(): void {
     localStorage.setItem('users', JSON.stringify(this.users));
     localStorage.setItem('passwords', JSON.stringify(this.passwords));
   }
 
-  // 🔹 Récupérer l'utilisateur connecté (synchrone ou async)
   async getCurrentUser(): Promise<User | null> {
-    // Simuler un petit délai
     await new Promise((resolve) => setTimeout(resolve, 100));
     return this.currentUser();
   }
 
-  // 🔹 Récupérer tous les utilisateurs
   async getAllUsers(): Promise<User[]> {
     await new Promise((resolve) => setTimeout(resolve, 200));
-    return [...this.users]; // retourner une copie
+    return [...this.users];
   }
 
-  // 🔹 Supprimer un utilisateur par ID
   async deleteUser(userId: number): Promise<boolean> {
     await new Promise((resolve) => setTimeout(resolve, 200));
     const index = this.users.findIndex((u) => u.id === userId);
     if (index === -1) return false;
 
-    // Empêcher de supprimer un admin
     if (this.users[index].role === 'admin') return false;
 
-    const userEmail = this.users[index].email; // 🔹 stocker avant splice
+    const userEmail = this.users[index].email;
     this.users.splice(index, 1);
     delete this.passwords[userEmail];
 
     this.syncLocalStorage();
     return true;
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 }

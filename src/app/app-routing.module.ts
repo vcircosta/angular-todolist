@@ -6,28 +6,28 @@ import { AdminGuard } from './core/guards/admin.guard';
 export const routes: Routes = [
   { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
 
-  // Lazy loading via routes exportées
+  // Auth
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
 
+  // Todos
   {
     path: 'todos',
     canActivate: [authGuard],
     loadChildren: () => import('./features/todos/todos.module').then((m) => m.TodosModule),
   },
 
-  {
-    path: 'admin',
-    canActivate: [authGuard, AdminGuard],
-    loadChildren: () => import('./features/admin/admin.module').then((m) => m.AdminModule),
-  },
+  // Admin (protégé par Auth + Admin)
   {
     path: 'admin',
     canActivate: [authGuard, AdminGuard],
     loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
+
+  // 404
+  { path: '**', redirectTo: '/auth/login' },
 ];
 
 @NgModule({
